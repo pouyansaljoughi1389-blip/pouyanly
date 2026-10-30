@@ -1,20 +1,43 @@
-name: pouyanly
-description: Persian-first offline English learning application
-publish_to: 'none'
-version: 0.1.0+1
 
-environment:
-  sdk: '>=3.4.0 <4.0.0'
+name: Build POUYANLY APK
 
-dependencies:
-  flutter:
-    sdk: flutter
-  shared_preferences: ^2.5.3
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
 
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_lints: ^5.0.0
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
 
-flutter:
-  uses-material-design: true
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Check Dart code
+        run: flutter analyze
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: POUYANLY-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
